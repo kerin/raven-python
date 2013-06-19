@@ -180,6 +180,9 @@ class HTTPTransport(Transport):
     def __init__(self, parsed_url, timeout=defaults.TIMEOUT):
         self.check_scheme(parsed_url)
 
+        if isinstance(timeout, basestring):
+            timeout = float(timeout)
+
         self._parsed_url = parsed_url
         self._url = parsed_url.geturl()
         self.timeout = timeout
@@ -213,6 +216,10 @@ class HTTPTransport(Transport):
             raise ValueError('Invalid Sentry DSN: %r' % url.geturl())
 
         server = '%s://%s%s/api/store/' % (url.scheme, netloc, path)
+
+        if url.query:
+            server += '?%s' % url.query
+
         scope.update({
             'SENTRY_SERVERS': [server],
             'SENTRY_PROJECT': project,
